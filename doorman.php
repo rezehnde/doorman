@@ -1,14 +1,14 @@
 <?php
 /*
 Plugin Name: Doorman
-Plugin URI: https://rezehnde.com/
+Plugin URI: https://github.com/rezehnde/doorman
 Description: Loging access to your wordpress
 Version: 1.0.0
 Author URI: https://rezehnde.com
 */
 
 /**
- * Register loging out
+ * Register logout
  *
  * @return void
  */
@@ -19,7 +19,7 @@ function register_out() {
 add_action('clear_auth_cookie', 'register_out', 10);
 
 /**
- * Register login in
+ * Register login
  *
  * @param STRING $user_login
  * @param WP_User $user
@@ -48,21 +48,20 @@ function register_log($user, $operation) {
     file_put_contents(plugin_dir_path(__FILE__).'/doorman.log', implode(', ', $record).PHP_EOL, FILE_APPEND);
 }
 
-// lowercase first letter of functions. It is more standard for PHP
-function getIP() 
-{
-    $tmp = getenv("HTTP_CLIENT_IP");
-
-    if ( $tmp && !strcasecmp( $tmp, "unknown"))
-        return $tmp;
-
-    $tmp = getenv("HTTP_X_FORWARDED_FOR");
-    if( $tmp && !strcasecmp( $tmp, "unknown"))
-        return $tmp;
-
-    $tmp = getenv("REMOTE_ADDR");
-    if($tmp && !strcasecmp($tmp, "unknown"))
-        return $tmp;
-
-    return("unknown");
+/**
+ * Get client IP
+ *
+ * @return STRING
+ */
+function getIP() {
+    $clientip = '';
+    foreach ( array( 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_X_CLUSTER_CLIENT_IP', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED', 'REMOTE_ADDR' ) as $key ) {
+        if ( isset( $_SERVER[ $key ] ) ) {
+            foreach ( explode( ',', $_SERVER[ $key ] ) as $ip ) {
+                $clientip = $ip;
+                break;
+            }
+        }
+    }
+    return $clientip;
 }
